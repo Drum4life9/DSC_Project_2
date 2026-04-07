@@ -22,11 +22,8 @@ data$subject <- factor(data$subject, levels = sort(as.numeric(unique(data$subjec
 # Make years index start at 0
 data$years <- data$years - 1
 
-# Create the years squared term
-data$years_sq <- data$years^2
-
 # add a Log_years data
-data$log_years <- log(data$years_sq + 1)
+data$exp_years <- exp(data$years / 5) # Dividing by 5 keeps the numbers manageable
 
 # Verify the first few rows to ensure 2^2 = 4, 3^2 = 9, etc.
 head(data[, c("subject", "years", "years_sq")])
@@ -189,20 +186,20 @@ p1 <- xyplot(hearing.loss ~ years, data = data,
              main = "Linear Trend",
              xlab = "Years", ylab = "Hearing Loss")
 
-# Quadratic Scale with Smooth Line
-p2 <- xyplot(hearing.loss ~ years_sq, data = data,
+# try a exponential plot
+p2 <- xyplot(hearing.loss ~ exp_years, data = data,
              type = c("p", "smooth"),
              col.line = "red", lwd = 3,
-             main = "Quadratic Trend",
-             xlab = "Years Squared", ylab = "Hearing Loss")
+             main = "Exponential Trend",
+             xlab = "E^Years", ylab = "Hearing Loss")
 
 # Display side-by-side
 print(p1, split = c(1, 1, 2, 1), more = TRUE)
 print(p2, split = c(2, 1, 2, 1))
 
-# try a logrithmic plot
-xyplot(hearing.loss ~ log_years, data = data, type = c("p", "smooth"),
-       col.line = "red", lwd = 3,)
+
+
+
 
 # ------------------ By Subject -----------------------
 
@@ -283,8 +280,8 @@ print(plot_noise_group("No"))
 
 
 # Print some interesting cases for further exploration later
-print(data[data$subject == 38, ])
-print(data[data$subject == 42, ])
-print(data[data$subject == 24, ])
+print(data[data$subject == 1, ])
+print(data[data$subject == 19, ])
+print(data[data$subject == 37, ])
 
 
