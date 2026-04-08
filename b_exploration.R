@@ -10,6 +10,8 @@ library(knitr)
 library(ggplot2)
 library(lattice)
 library(effects)
+library(HLMdiag)
+
 
 # ---------------------------------------------------Transform--------------------------------------------------------------------------
 
@@ -26,7 +28,7 @@ data$years <- data$years - 1
 data$exp_years <- exp(data$years / 5) # Dividing by 5 keeps the numbers manageable
 
 # Verify the first few rows to ensure 2^2 = 4, 3^2 = 9, etc.
-head(data[, c("subject", "years", "years_sq")])
+head(data[, c("subject", "years", "exp_years")])
 
 # ---------------------------------------------------Analysis Tables--------------------------------------------------------------------------
 

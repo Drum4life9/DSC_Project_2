@@ -68,7 +68,7 @@ model3b.ml.fit = update(model3b.fit, method = "ML")
 model4a.ml.fit <- update(model3b.ml.fit, . ~ years * Noise.level + exp_years)
 
 anova(model3b.ml.fit, model4a.ml.fit)
-summary(model4a.fit)
+summary(model4a.ml.fit)
 
 
 # ------------------------ Hyp 6 ------------------------
