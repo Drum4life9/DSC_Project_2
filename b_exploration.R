@@ -5,6 +5,7 @@ load("NoisestudyHLN.RData")
 data = NoisestudyHLN
 
 library(nlme)
+
 library(dplyr)
 library(knitr)
 library(ggplot2)
@@ -29,6 +30,18 @@ data$exp_years <- exp(data$years / 5) # Dividing by 5 keeps the numbers manageab
 
 # Verify the first few rows to ensure 2^2 = 4, 3^2 = 9, etc.
 head(data[, c("subject", "years", "exp_years")])
+
+# Check current levels (usually alphabetical: High, Low, No)
+levels(data$Noise.level)
+
+# Force Low to the front, then No
+data$Noise.level <- relevel(factor(data$Noise.level), ref = "Low")
+data$Noise.level <- relevel(factor(data$Noise.level), ref = "No")
+
+levels(data$Noise.level)
+
+
+
 
 # ---------------------------------------------------Analysis Tables--------------------------------------------------------------------------
 
@@ -276,9 +289,9 @@ plot_noise_group <- function(level) {
 }
 
 # Generate the High Noise plot
+print(plot_noise_group("No"))
 print(plot_noise_group("Low"))
 print(plot_noise_group("High"))
-print(plot_noise_group("No"))
 
 
 # Print some interesting cases for further exploration later
