@@ -8,11 +8,13 @@ source("b_exploration.R")
 # Random: Individual Intercepts and Individual Slopes for Years
 # Weights: Different residual variance for every year (varIdent)
 
+# Model 1 Model with Loaded Mean Structure
 model1.fit <- lme(hearing.loss ~ (years + exp_years) * Noise.level,
-                    random = ~ years | subject, 
-                    data = data,
-                    weights = varIdent(form = ~ 1 | (years)),
-                    method = "REML") # Use REML for LRT comparisons later
+                  random = ~ years | subject, 
+                  data = data,
+                  weights = varIdent(form = ~ 1 | (years)),
+                  method = "REML") 
+# Use REML for LRT comparisons later
 
 
 summary(model1.fit)
@@ -21,53 +23,64 @@ summary(model1.fit)
 
 
 # ------------------------ Hyp 1 ------------------------
-
+# Model 2A Excludes the random slope
 model2a.fit <- update(model1.fit, random = ~ 1 | subject) # Remove random slope for years
-anova(model1.fit, model2a.fit) # keep random slope
+# Hypothesis 1 --> Null Hypothesis: Drop u1j (variance of random slope = 0)
+# --> Alternative Hypothesis: Keep u1j (variance of random slope != 0) 
+anova(model1.fit, model2a.fit) # Test Hypothesis 1
+# Keep Model 1 --> Reject Null Hypothesis
 
 
 # ------------------------ Hyp 2 ------------------------
-
+# Model 2B Excludes the random intercept
 model2b.fit <- update(model1.fit, random = ~ years - 1 | subject) # Remove random intercept
-anova(model1.fit, model2b.fit) # keep random intercept
-
-
+# Hypothesis 2 --> Null Hypothesis: Drop u0j (variance of random intercept = 0)
+# --> Alternative Hypothesis: Keep u0j (variance of random intercept > 0)
+anova(model1.fit, model2b.fit) # Test Hypothesis 2
+# Keep Model 1 --> Reject Null Hypothesis
 
 # ----------------------------- Residual Structure -----------------------------
 
 
 # ------------------------ Hyp 3 ------------------------
-
+# Model 3A Removed Heterogeneous Residual by years
 model3a.fit <- lme(hearing.loss ~ (years + exp_years) * Noise.level,
                    random = ~ years | subject, 
                    data = data,
                    method = "REML")
-anova(model1.fit, model3a.fit) # keep varIdent
-
+# Hypothesis 3 --> Null Hypothesis: Homogeneous residual variance (all variances of tea_level groups are the same)
+# Alternative Hypothesis: Residual variances are not all equal
+anova(model1.fit, model3a.fit) # Test Hypothesis 3
+# Keep Model 1 --> Reject Null Hypothesis
 
 # ------------------------ Hyp 4 ------------------------
 
 ctrl <- lmeControl(maxIter = 200, msMaxIter = 200, niterEM = 50, opt = "optim")
 
 # Test AR correlation
+# Model 3B AR1 Correlation Added
 model3b.fit <- update(model1.fit, correlation = corAR1(form = ~ 1 | subject), control = ctrl)
-anova(model1.fit, model3b.fit) # keep ARCorr
+# Hypothesis 4 --> Null Hypothesis: phi = 0
+# Alternative Hypothesis: phi != 0
+anova(model1.fit, model3b.fit) # Test Hypothesis 4
+# Keep Model 3B --> Reject Null Hypothesis 
 summary(model3b.fit)
 
-
-
+# ----------------------------- Fixed Effects -----------------------------
 
 # ------------------------ Hyp 5 ------------------------
 
 summary(model3b.fit)
 
-# fit 3 with ml
+# fit 3b with ml
 model3b.ml.fit = update(model3b.fit, method = "ML")
 
-# model 4, remove exp_noise interaction term
+# Model 4A Removed exp_years:Noise.level
 model4a.ml.fit <- update(model3b.ml.fit, . ~ years * Noise.level + exp_years)
-
-anova(model3b.ml.fit, model4a.ml.fit)
+# Hypothesis 5 --> Null Hypothesis: Drop exp_years:Noise.level (B_exp_years:Noise.level = 0)
+# Alternative Hypothesis: Keep exp_years:Noise.level (B_exp_years:Noise.level != 0)
+anova(model3b.ml.fit, model4a.ml.fit) # Test Hypothesis 5
+# Keep Model 4a --> Fail to Reject Null Hypothesis
 summary(model4a.ml.fit)
 
 
@@ -75,17 +88,19 @@ summary(model4a.ml.fit)
 
 anova(model4a.ml.fit)
 
-# remove exp_years term because of high(ish) p-value
+# Removed exp_years 
 model4b.ml.fit <- update(model4a.ml.fit, . ~ years * Noise.level)
 summary(model4b.ml.fit)
-
-anova(model4a.ml.fit, model4b.ml.fit) # result: keep exp_years
-
+# Hypothesis 6 --> Null Hypothesis: Drop exp_years (B_exp_years = 0)
+# Alternative Hypothesis: Keep exp_years (B_exp_years != 0)
+anova(model4a.ml.fit, model4b.ml.fit) # Test Hypothesis 6
+# Keep Model 4A --> Reject Null Hypothesis
 anova(model4a.ml.fit)
 
 
-# ------------------------ Hyp 7 ------------------------
+# ------------------------ Final Model ------------------------
 
 final.model = update(model4a.ml.fit, method = "REML")
 summary(final.model)
+
 
