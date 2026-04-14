@@ -320,3 +320,38 @@ bwplot(stud_resids ~ subject,
            plot.symbol = list(pch = 1, col = "black", cex = 0.5)
        ))
 
+# ------------------------------------------------------------------------------
+# Figure 6.8
+plot(final.model, 
+     resid(., type = "p") ~ fitted(.) | Noise.level, 
+     layout = c(3, 1),
+     abline = 0)
+plot(final.model, 
+     resid(., type = "p") ~ fitted(.) | years, 
+     layout = c(5, 2),
+     abline = 0)
+
+# Figure 6.9
+plot(final.model, 
+     resid(.) ~ years, 
+     abline = 0)
+
+# Figure 6.10
+qqnorm(final.model,
+       ~ resid(.) | Noise.level,
+       layout = c(3,1))
+
+# Figure 6.11
+qqnorm(final.model,~ranef(.),id=0.10)
+
+# Figure 6.12
+pairs(final.model,
+      ~ranef(.) |factor(Noise.level),
+      id =~subject==28,layout=c(3,1),aspect=2)
+pairs(final.model,
+      ~ranef(.) |factor(Noise.level),
+      id =~subject==38,layout=c(3,1),aspect=2)
+
+# Figure 6.13
+plot(final.model,hearing.loss~fitted(.)|factor(Noise.level),
+     id =0.05,layout=c(3,1),aspect=2)
