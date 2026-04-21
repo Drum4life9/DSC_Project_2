@@ -104,3 +104,29 @@ final.model = update(model4a.ml.fit, method = "REML")
 summary(final.model)
 
 
+
+# after project code -------
+
+
+test = update(final.model, random = ~ years + I(years^2) | subject)
+summary(test)
+
+# Wrap 'years' in I() to perform the math inside the formula
+test_power <- update(final.model, 
+                     weights = varPower(form = ~ I(years + 1)))
+summary(test_power)
+
+getVarCov(final.model, type = "conditional")
+
+
+
+
+# try to merge no and low
+data$nlevel[data$Noise.level == "High"] <- 1
+data$nlevel[data$Noise.level == "No" | data$Noise.level == "Low"] <- 2
+
+test2 = update(final.model, . ~ years * Noise.level + exp_years, method = "ML")
+final.model.ml = update(final.model, method = "ML")
+summary(test2)
+
+anova(test2, final.model.ml)
